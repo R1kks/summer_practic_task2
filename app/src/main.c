@@ -14,5 +14,10 @@ int main(int argc, char *argv[]) {
     if (!parse_arguments(argc, argv, &cfg)) {
         return 1;
     }
+
+    if (!run_hex_dump(&cfg)) {
+        return 1;
+    }
+
     return 0;
 }
