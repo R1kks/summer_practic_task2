@@ -9,5 +9,6 @@ main.c - файл, который содержит главную функцию
 #include <stdio.h>
 
 int main(int argc, char *argv[]) {
+    DumperConfig cfg;
     return 0;
 }
