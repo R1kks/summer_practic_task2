@@ -15,3 +15,5 @@ typedef struct {
     int cols_per_line;    // Количество кусочков в строке (-n)
     char *dir_name;       // Имя директории для обработки (-d)
 } DumperConfig;
+
+int parse_arguments(int argc, char *argv[], DumperConfig *cfg);
