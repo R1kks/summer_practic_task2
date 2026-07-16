@@ -2,6 +2,15 @@
 #include "getopt.h" 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
+
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <unistd.h>
+#include <dirent.h>
+#endif
 
 static void byte_to_hex_chars(unsigned char byte, char out[2]) {
     const char hex_digits[] = "0123456789ABCDEF";
@@ -127,6 +136,7 @@ static int dump_single_file(const char *filepath, const DumperConfig *cfg) {
     return 1;
 }
 
+
 static void process_dir_entry(const char *dir, const char *name, const DumperConfig *cfg) {
     char path[1024];
     snprintf(path, sizeof(path), "%s/%s", dir, name);
@@ -137,4 +147,47 @@ static void process_dir_entry(const char *dir, const char *name, const DumperCon
         dump_single_file(path, cfg);
         printf("%c", '\n');
     }
+}
+
+int run_hex_dump(const DumperConfig *cfg) {
+    if (cfg->dir_name) {
+#ifdef _WIN32
+        char search_path[MAX_PATH];
+        snprintf(search_path, sizeof(search_path), "%s\\*", cfg->dir_name);
+        
+        WIN32_FIND_DATAA fd;
+        HANDLE hFind = FindFirstFileA(search_path, &fd);
+        if (hFind == INVALID_HANDLE_VALUE) {
+            fprintf(stderr, "Ошибка: Не удалось открыть директорию %s\n", cfg->dir_name);
+            return 0;
+        }
+        do {
+            if (strcmp(fd.cFileName, ".") != 0 && strcmp(fd.cFileName, "..") != 0) {
+                process_dir_entry(cfg->dir_name, fd.cFileName, cfg);
+            }
+        } while (FindNextFileA(hFind, &fd));
+        FindClose(hFind);
+#else
+        DIR *d = opendir(cfg->dir_name);
+        if (!d) {
+            fprintf(stderr, "Ошибка: Не удалось открыть директорию %s\n", cfg->dir_name);
+            return 0;
+        }
+        struct dirent *dir_entry;
+        while ((dir_entry = readdir(d)) != NULL) {
+            if (strcmp(dir_entry->d_name, ".") != 0 && strcmp(dir_entry->d_name, "..") != 0) {
+                process_dir_entry(cfg->dir_name, dir_entry->d_name, cfg);
+            }
+        }
+        closedir(d);
+#endif
+        return 1;
+    }
+
+    if (cfg->file_name) {
+        return dump_single_file(cfg->file_name, cfg);
+    }
+
+    fprintf(stderr, "Ошибка: Необходимо указать файл (-i) или директорию (-d).\n");
+    return 0;
 }

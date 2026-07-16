@@ -17,3 +17,5 @@ typedef struct {
 } DumperConfig;
 
 int parse_arguments(int argc, char *argv[], DumperConfig *cfg);
+
+int run_hex_dump(const DumperConfig *cfg);
