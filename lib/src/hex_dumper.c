@@ -126,3 +126,15 @@ static int dump_single_file(const char *filepath, const DumperConfig *cfg) {
     fclose(file);
     return 1;
 }
+
+static void process_dir_entry(const char *dir, const char *name, const DumperConfig *cfg) {
+    char path[1024];
+    snprintf(path, sizeof(path), "%s/%s", dir, name);
+    
+    struct stat st;
+    if (stat(path, &st) == 0 && S_ISREG(st.st_mode)) {
+        printf("--- Файл: %s ---\n", name);
+        dump_single_file(path, cfg);
+        printf("%c", '\n');
+    }
+}
