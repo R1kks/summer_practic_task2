@@ -4,6 +4,18 @@
 #include <stdlib.h>
 
 
+static void byte_to_hex_chars(unsigned char byte, char out[2]) {
+    const char hex_digits[] = "0123456789ABCDEF";
+    out[0] = hex_digits[(byte >> 4) & 0x0F];
+    out[1] = hex_digits[byte & 0x0F];
+}
+
+static void print_spaces(int count) {
+    for (int i = 0; i < count; i++) {
+        printf("%c", ' ');
+    }
+}
+
 int parse_arguments(int argc, char *argv[], DumperConfig *cfg) {
     cfg->file_name = NULL;
     cfg->dir_name = NULL;
