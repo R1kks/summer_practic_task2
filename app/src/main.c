@@ -10,5 +10,9 @@ main.c - файл, который содержит главную функцию
 
 int main(int argc, char *argv[]) {
     DumperConfig cfg;
+
+    if (!parse_arguments(argc, argv, &cfg)) {
+        return 1;
+    }
     return 0;
 }
